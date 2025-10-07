@@ -1,0 +1,242 @@
+/* Basic inline styles for a clean, catchier look and feel */
+:root {
+    --primary-color: #007bff; /* Blue for action */
+    --secondary-color: #28a745; /* Green for success/savings */
+    --bg-color: #f8f9fa; /* Light background */
+    --card-bg: #ffffff;
+    --text-color: #343a40;
+    --warning-color: #ffc107;
+    --danger-color: #dc3545;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+}
+
+.app-container {
+    display: flex;
+    max-width: 1200px;
+    margin: 40px auto;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    background-color: var(--card-bg);
+}
+
+.main-content {
+    flex: 2;
+    padding: 40px;
+}
+
+.sidebar {
+    flex: 1;
+    padding: 40px;
+    background-color: #e9ecef; /* Slightly darker sidebar for contrast */
+    color: var(--text-color);
+}
+
+h1, h2, h3 {
+    color: var(--text-color);
+    margin-top: 0;
+}
+
+/* Progress Bar (Task Orientation) */
+.progress-bar {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 30px;
+    list-style: none;
+    padding: 0;
+}
+
+.progress-bar li {
+    position: relative;
+    width: 25%;
+    text-align: center;
+    color: #6c757d;
+}
+
+.progress-bar li::before {
+    content: '';
+    display: block;
+    width: 10px;
+    height: 10px;
+    background: #6c757d;
+    border-radius: 50%;
+    margin: 0 auto 10px;
+    z-index: 10;
+}
+
+.progress-bar li:first-child::after,
+.progress-bar li:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    top: 5px;
+    left: calc(50% + 5px);
+    width: calc(100% - 10px);
+    height: 2px;
+    background: #e9ecef;
+    z-index: 5;
+}
+
+.progress-bar li.active {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.progress-bar li.active::before {
+    background: var(--primary-color);
+}
+
+.input-group {
+    margin-bottom: 25px;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.input-group input[type="number"],
+.input-group input[type="text"],
+.input-group select {
+    width: calc(100% - 20px);
+    padding: 10px;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    box-sizing: border-box;
+    font-size: 16px;
+}
+
+.help-icon {
+    color: var(--primary-color);
+    cursor: pointer;
+    margin-left: 5px;
+}
+
+.cta-button {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 18px;
+    transition: background-color 0.3s;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+}
+
+.cta-button:hover {
+    background-color: #0056b3;
+}
+
+.cta-button.secondary {
+    background-color: #6c757d;
+}
+
+.cta-button.secondary:hover {
+    background-color: #545b62;
+}
+
+/* Sidebar Styles (Live Calculation & Regime Comparison) */
+.tax-summary h3 {
+    border-bottom: 2px solid #ddd;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.tax-summary p {
+    display: flex;
+    justify-content: space-between;
+    margin: 10px 0;
+    font-size: 16px;
+}
+
+.regime-box {
+    background-color: var(--card-bg);
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 15px;
+    border-left: 5px solid var(--secondary-color);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.regime-box.best {
+    border-left: 5px solid var(--secondary-color);
+}
+
+.regime-box h4 {
+    color: var(--secondary-color);
+    margin-top: 0;
+    font-size: 18px;
+}
+
+.savings-alert {
+    font-weight: 700;
+    color: var(--secondary-color);
+}
+
+.warning {
+    color: var(--warning-color);
+}
+
+.danger {
+    color: var(--danger-color);
+}
+
+/* Deductions page styles */
+.deduction-category {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.deduction-category h3 {
+    color: var(--primary-color);
+}
+
+.deduction-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: 6px;
+}
+
+.deduction-item label {
+    flex-grow: 1;
+    margin-bottom: 0;
+}
+
+.deduction-item input {
+    width: 120px;
+    margin-left: 15px;
+}
+
+.total-section {
+    background-color: #e9ecef;
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 20px;
+    text-align: center;
+}
+
+.total-section h3 {
+    margin-top: 0;
+    color: var(--secondary-color);
+}
+
+.navigation-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
+}

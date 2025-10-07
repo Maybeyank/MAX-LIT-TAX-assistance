@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Income Tax FAQ Chatbot</title>
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #28a745;
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-color: #343a40;
+            --user-msg-bg: #007bff;
+            --bot-msg-bg: #e9ecef;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            padding: 20px 0;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        h1 {
+            color: var(--primary-color);
+        }
+        
+        .app-container {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .chat-container {
+            flex: 3;
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            height: 70vh;
+        }
+        
+        .faq-container {
+            flex: 2;
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            height: 70vh;
+            overflow-y: auto;
+        }
+        
+        .chat-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid #dee2e6;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .message {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            line-height: 1.5;
+        }
+        
+        .user-message {
+            align-self: flex-end;
+            background-color: var(--user-msg-bg);
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+        
+        .bot-message {
+            align-self: flex-start;
+            background-color: var(--bot-msg-bg);
+            border-bottom-left-radius: 5px;
+        }
+        
+        .chat-input {
+            display: flex;
+            padding: 15px;
+            border-top: 1px solid #dee2e6;
+            gap: 10px;
+        }
+        
+        .chat-input input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid #ced4da;
+            border-radius: 24px;
+            font-size: 16px;
+            outline: none;
+        }
+        
+        .chat-input input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+        }
+        
+        .chat-input button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 24px;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        
+        .chat-input button:hover {
+            background-color: #0056b3;
+        }
+        
+        .faq-header {
+            margin-top: 0;
+            color: var(--primary-color);
+            border-bottom: 1px solid #dee2e6;
+            padding-bottom: 10px;
+        }
+        
+        .faq-category {
+            margin-bottom: 25px;
+        }
+        
+        .faq-category h3 {
+            color: var(--secondary-color);
+            margin-bottom: 10px;
+        }
+        
+        .faq-item {
+            background-color: var(--bot-msg-bg);
+            margin-bottom: 10px;
+            padding: 12px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .faq-item:hover {
+            background-color: #d1d1d1;
+        }
+        
+        .faq-question {
+            font-weight: 600;
+        }
+        
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        
+        @media (max-width: 768px) {
+            .app-container {
+                flex-direction: column;
+            }
+            
+            .message {
+                max-width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Income Tax FAQ Chatbot</h1>
+            <p>Ask me any question about income tax filing and I'll help you find the answers</p>
+        </header>
+        
+        <a href="index.html" class="back-link">← Back to Tax Assistant</a>
+        
+        <div class="app-container">
+            <div class="chat-container">
+                <div class="chat-header">Chat</div>
+                <div class="chat-messages" id="chat-messages">
+                    <div class="message bot-message">
+                        Hello! I'm your Income Tax FAQ assistant. Ask me any question about income tax filing and I'll do my best to help. For example, you can ask "What is ITR?" or "How to save tax using Section 80C?".
+                    </div>
+                </div>
+                <div class="chat-input">
+                    <input type="text" id="user-input" placeholder="Type your question here..." autocomplete="off">
+                    <button id="send-button">Send</button>
+                </div>
+            </div>
+            
+            <div class="faq-container">
+                <h2 class="faq-header">Popular Questions</h2>
+                <div class="faq-category">
+                    <h3>Basics</h3>
+                    <div class="faq-item" data-question="What is Income Tax Return (ITR)?">
+                        <div class="faq-question">What is Income Tax Return (ITR)?</div>
+                    </div>
+                    <div class="faq-item" data-question="What is a PAN card and why do I need it for taxes?">
+                        <div class="faq-question">What is a PAN card and why do I need it for taxes?</div>
+                    </div>
+                    <div class="faq-item" data-question="What is TDS (Tax Deducted at Source)?">
+                        <div class="faq-question">What is TDS (Tax Deducted at Source)?</div>
+                    </div>
+                </div>
+                
+                <div class="faq-category">
+                    <h3>Filing Process</h3>
+                    <div class="faq-item" data-question="What documents do I need to keep ready before filing my ITR?">
+                        <div class="faq-question">What documents do I need to keep ready before filing my ITR?</div>
+                    </div>
+                    <div class="faq-item" data-question="How do I file my ITR online by myself?">
+                        <div class="faq-question">How do I file my ITR online by myself?</div>
+                    </div>
+                    <div class="faq-item" data-question="What is e-verification and why is it necessary?">
+                        <div class="faq-question">What is e-verification and why is it necessary?</div>
+                    </div>
+                </div>
+                
+                <div class="faq-category">
+                    <h3>Deductions</h3>
+                    <div class="faq-item" data-question="What is Section 80C and how can it help me save tax?">
+                        <div class="faq-question">What is Section 80C and how can it help me save tax?</div>
+                    </div>
+                    <div class="faq-item" data-question="How do I claim House Rent Allowance (HRA) if I live in a rented house?">
+                        <div class="faq-question">How do I claim House Rent Allowance (HRA) if I live in a rented house?</div>
+                    </div>
+                </div>
+                
+                <div class="faq-category">
+                    <h3>Deadlines & Penalties</h3>
+                    <div class="faq-item" data-question="What is the due date for filing ITR for a salaried person?">
+                        <div class="faq-question">What is the due date for filing ITR for a salaried person?</div>
+                    </div>
+                    <div class="faq-item" data-question="What happens if I miss the deadline for filing my tax return?">
+                        <div class="faq-question">What happens if I miss the deadline for filing my tax return?</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // FAQ data - in a real application, this would be loaded from a CSV or API
+        const faqData = [
+            {
+                category: "Basics",
+                question: "What is Income Tax Return (ITR)?",
+                answer: "An Income Tax Return (ITR) is a form that taxpayers use to report their income and taxes paid to the Income Tax Department. It includes details of your income from various sources like salary, business, property, capital gains, and other sources, along with details of taxes paid during the financial year."
+            },
+            {
+                category: "Basics",
+                question: "Why is filing ITR important even if my tax is already deducted (TDS)?",
+                answer: "Filing ITR is important for several reasons, even if your tax has already been deducted: Legal Requirement: If your income exceeds the basic exemption limit, filing ITR is mandatory. Proof of Income: ITR serves as legal proof of your income for various purposes like loan applications, visa processing, etc. Refund Claims: If excess tax has been deducted, you can claim a refund only by filing ITR. Tax Compliance: It helps maintain transparency with tax authorities and avoids future complications. Carry Forward Losses: Business or capital losses can only be carried forward if ITR is filed."
+            },
+            {
+                category: "Basics",
+                question: "What's the difference between a Financial Year (FY) and an Assessment Year (AY)?",
+                answer: "Financial Year (FY): This is the year in which you earn your income. It runs from April 1st to March 31st of the next year. For example, FY 2024-25 covers the period from April 1, 2024, to March 31, 2025. Assessment Year (AY): This is the year immediately following the financial year in which the income earned during the FY is assessed for tax purposes. For FY 2024-25, the AY would be 2025-26."
+            },
+            {
+                category: "Basics",
+                question: "What is a PAN card and why do I need it for taxes?",
+                answer: "PAN (Permanent Account Number) is a unique 10-digit alphanumeric identifier issued by the Income Tax Department. It's essential for: Filing income tax returns, Paying taxes, Opening bank accounts, Making high-value transactions (over ₹2.5 lakhs), Investing in mutual funds, shares, etc. PAN helps the tax department track financial transactions and prevent tax evasion."
+            },
+            {
+                category: "Basics",
+                question: "My company gave me a Form 16. What is it for?",
+                answer: "Form 16 is a certificate issued by your employer that contains details of your salary income and the tax deducted at source (TDS) during the financial year. It consists of two parts: Part A: Contains employer and employee details, TDS details, and a summary of tax deducted. Part B: Contains a detailed breakdown of salary, other income declared by you, deductions claimed, and tax computation. Form 16 is essential for filing your income tax return as it provides most of the information needed."
+            },
+            {
+                category: "Basics",
+                question: "What is TDS (Tax Deducted at Source)?",
+                answer: "TDS is a system introduced by the Income Tax Department to collect tax at the source of income. Under this system, the person making a payment (like your employer) deducts a certain percentage of tax before making the full payment to you. For salaried employees, employers deduct TDS monthly based on your estimated annual income and tax liability. This ensures a steady flow of revenue for the government and reduces the burden of lump-sum tax payment at the end of the year."
+            },
+            {
+                category: "Applicability",
+                question: "Who is required to file an income tax return in India?",
+                answer: "You are required to file an ITR if your total income exceeds the basic exemption limit in a financial year. For FY 2024-25: Individuals below 60 years: ₹3,00,000, Senior citizens (60-79 years): ₹3,00,000, Super senior citizens (80+ years): ₹5,00,000. Additionally, ITR must be filed regardless of income level if: You have assets or signing authority in foreign accounts, You receive income from more than one source, You have capital gains from sale of assets, You are a company or firm, regardless of profit or loss."
+            },
+            {
+                category: "Applicability",
+                question: "Is there a minimum income level below which I don't have to file ITR?",
+                answer: "Yes, if your total income is below the basic exemption limit, you're not required to file an ITR. However, it's still advisable to file if: You want to claim a refund of TDS, You have high-value transactions that require PAN, You want to establish a credit history for future loans."
+            },
+            {
+                category: "Applicability",
+                question: "My income is less than 2.5 lakhs. Should I still file an ITR?",
+                answer: "While not mandatory, filing ITR even with income below ₹2.5 lakhs has benefits: Refund Claims: If any TDS was deducted, you can claim it back, Financial Credibility: ITR serves as proof of income for loans, visas, etc., Future Planning: Establishes a tax filing history, Government Schemes: Some schemes require ITR as proof of income. It's a good financial practice to file ITR regardless of income level."
+            },
+            {
+                category: "Deadlines & Penalties",
+                question: "What is the due date for filing ITR for a salaried person?",
+                answer: "For most individual taxpayers (including salaried employees), the due date for filing ITR is: July 31st of the assessment year for FY 2024-25 (AY 2025-26). For example, for the financial year 2024-25 (April 1, 2024, to March 31, 2025), the due date for filing ITR is July 31, 2025. Note: Different deadlines apply for: Business owners and professionals (September 30th), Companies (November 30th), Working partners of firms whose accounts are required to be audited (October 31st)."
+            },
+            {
+                category: "Deadlines & Penalties",
+                question: "What happens if I miss the deadline for filing my tax return?",
+                answer: "If you miss the ITR filing deadline, several consequences may apply: Late Filing Fee: You'll have to pay a late filing fee under Section 234F: Up to ₹1,000 if filed before December 31st of the AY, Up to ₹10,000 if filed after December 31st of the AY, Maximum ₹1,000 for taxpayers with income up to ₹5 lakhs. Interest on Outstanding Tax: Interest at 1% per month under Section 234A from the due date until the date of filing. Loss Carry Forward: Business losses or capital losses cannot be carried forward if ITR is filed late. Notice from IT Department: You may receive notices for delayed filing. However, you can still file a belated return up to March 31st of the next year (or completion of assessment, whichever is earlier)."
+            },
+            {
+                category: "Filing Process",
+                question: "What documents do I need to keep ready before filing my ITR?",
+                answer: "Essential documents for ITR filing include: PAN Card, Form 16 (from employer), Bank Statements (to report interest income), Form 26AS (tax credit statement), Investment Proofs (for deductions claimed), Home Loan Documents (if applicable), Property Documents (if you have rental income), Capital Gains Statements (if you sold assets), Proof of Donations (for 80G deductions), Aadhaar Card. Gathering these documents before starting the ITR process will make filing much smoother."
+            },
+            {
+                category: "Filing Process",
+                question: "What is the difference between the Old and New Tax Regime?",
+                answer: "The key differences between the two tax regimes are: Tax Slabs - Old Regime: More slabs with higher rates, New Regime: Fewer slabs with lower rates. Deductions - Old Regime: Many deductions available (80C, 80D, HRA, etc.), New Regime: Limited deductions (Standard deduction only). Standard Deduction - Old Regime: ₹50,000, New Regime: ₹75,000 (increased from ₹50,000). Choice - Old Regime: Default option, New Regime: Optional (can switch back to old). The new regime offers lower tax rates but fewer deductions, while the old regime has higher rates but more deductions."
+            },
+            {
+                category: "Filing Process",
+                question: "Which tax regime should I choose as a new earner?",
+                answer: "As a new earner, the choice depends on your investment habits and income level: Choose New Regime if: Your income is below ₹15 lakhs, You don't make significant investments in tax-saving instruments, You prefer simplicity in tax filing, You don't have home loans or significant HRA claims. Choose Old Regime if: You invest significantly in 80C instruments (PPF, ELSS, etc.), You have a home loan with substantial interest payments, You pay high rent and can claim HRA exemption, Your total deductions exceed the benefit of lower tax rates. Our Intelligent Tax Assistant can help you compare both regimes based on your specific financial situation."
+            },
+            {
+                category: "Filing Process",
+                question: "How do I file my ITR online by myself?",
+                answer: "Filing ITR online is straightforward: Visit the Official Portal: Go to incometaxindiaefiling.gov.in, Login: Use your PAN and password to log in, Select ITR Form: Choose the appropriate ITR form based on your income sources, Fill Details: Enter your personal, income, and deduction details, Upload Documents: Attach Form 16 and other supporting documents, Validate: Review all information for accuracy, Submit: Submit the return and generate an ITR-V, Verification: Either e-verify or send the signed ITR-V to CPC Bangalore. Alternatively, you can use our Intelligent Tax Assistant to simplify this process with guided steps and automatic calculations."
+            },
+            {
+                category: "Filing Process",
+                question: "What is e-verification and why is it necessary?",
+                answer: "E-verification is the electronic process of validating your income tax return after submission. It's necessary because: Legal Requirement: Without verification, your ITR is considered invalid, Processing: Only verified returns are processed for refunds or assessments, Time-Saving: E-verification is instant, unlike physical ITR-V which takes weeks. Methods of e-verification include: Aadhaar OTP, Net Banking, Bank Account EVC, Digital Signature Certificate (DSC), Bank ATM. If you don't e-verify, you must print, sign, and send the ITR-V to CPC Bangalore within 120 days."
+            },
+            {
+                category: "Deductions",
+                question: "What is Section 80C and how can it help me save tax?",
+                answer: "Section 80C is one of the most popular tax-saving provisions that allows you to claim a deduction of up to ₹1.5 lakhs from your gross total income. This deduction can significantly reduce your taxable income and thereby your tax liability. Investments and expenses that qualify under Section 80C include: Employee Provident Fund (EPF), Public Provident Fund (PPF), National Savings Certificate (NSC), Tax-saving Fixed Deposits (5-year lock-in), Equity Linked Savings Scheme (ELSS), Life Insurance Premiums, Principal repayment of Home Loan, Tuition fees for children, Senior Citizen Savings Scheme. By investing ₹1.5 lakhs in eligible instruments, you can reduce your taxable income by the same amount, potentially saving thousands in taxes."
+            },
+            {
+                category: "Deductions",
+                question: "What are some common investments that come under Section 80C?",
+                answer: "Popular investment options under Section 80C include: Public Provident Fund (PPF): 15-year lock-in, currently 7.1% interest, highly safe, Employee Provident Fund (EPF): Automatically deducted from salary, ~8.1% interest, Equity Linked Savings Scheme (ELSS): 3-year lock-in, market-linked returns, potential for higher growth, National Savings Certificate (NSC): 5-year lock-in, government-backed, fixed returns, Tax-saving Fixed Deposits: 5-year lock-in, fixed returns from banks, Life Insurance Premiums: Dual benefit of insurance + tax savings, Sukanya Samriddhi Yojana: For girl child, 21-year lock-in, attractive interest rates, Principal Repayment of Home Loan: Reduces both tax liability and loan burden. Each investment has different risk levels, returns, and lock-in periods. Choose based on your risk appetite and financial goals."
+            },
+            {
+                category: "Deductions",
+                question: "How do I claim House Rent Allowance (HRA) if I live in a rented house?",
+                answer: "If you live in a rented house and receive HRA from your employer, you can claim HRA exemption under Section 10(13A). The exemption is the least of the following: Actual HRA received from employer, 50% of basic salary (for metro cities) or 40% of basic salary (for non-metro cities), Rent paid minus 10% of basic salary. To claim HRA exemption: Maintain rent receipts (especially for rent above ₹100,000 per year), Provide landlord's PAN if annual rent exceeds ₹1 lakh, Include HRA details in your tax filing. Note: HRA exemption is available only under the old tax regime. If you opt for the new regime, you cannot claim HRA exemption."
+            },
+            {
+                category: "Deductions",
+                question: "What is a Standard Deduction for salaried employees?",
+                answer: "Standard Deduction is a flat deduction available to all salaried employees and pensioners. For FY 2024-25: Old Regime: ₹50,000, New Regime: ₹75,000 (increased from ₹50,000). This deduction replaces several other allowances and deductions like: Medical reimbursement (up to ₹15,000), Transport allowance (up to ₹19,200), Other minor allowances. Standard Deduction is available in both tax regimes, but the amount is higher in the new regime. It's automatically considered when calculating your taxable salary income."
+            },
+            {
+                category: "Post-Filing",
+                question: "How can I check the status of my filed ITR?",
+                answer: "You can check your ITR status through the following methods: Income Tax e-filing Portal: Login to incometaxindiaefiling.gov.in, Go to \"View Returns/Forms\", Select the assessment year and view status. ITR-V Status: Check if your return is \"Filed\" or \"Verified\", Unverified returns show as \"Processing\". Refund Status: Check \"View Refund Status\" for any refund due, Track refund through \"Refund Re-issue\" request if needed. Notice Center: Check \"View Notices\" for any communication from ITD. Status updates typically appear within a few hours of filing, but processing may take several weeks."
+            },
+            {
+                category: "Post-Filing",
+                question: "What is a tax refund and how long does it take to receive it?",
+                answer: "A tax refund occurs when you've paid more tax than your actual liability during the financial year. Common reasons include: Excess TDS deducted by employer, Eligible deductions not considered at source, Investments made during the year. Refund Timeline: Processing: 2-4 weeks after ITR is processed, Credit to Bank: Additional 1-3 weeks after processing, Total Time: Usually 4-8 weeks from ITR processing. To expedite refund: Ensure your bank account details are correct in your profile, E-verify your return immediately, Link your PAN with Aadhaar, Provide correct bank account details. You can track refund status on the income tax portal using your PAN and assessment year."
+            },
+            {
+                category: "Post-Filing",
+                question: "I made a mistake in my ITR after filing. Can I fix it?",
+                answer: "Yes, you can correct mistakes in your filed ITR through a process called \"Rectification\". Here's how: Login: Access the income tax portal with your credentials, Navigate: Go to \"e-File\" → \"Income Tax Returns\" → \"View Returns/Forms\", Select: Choose the relevant assessment year and click \"Rectification\", Correct: Make the necessary changes in the return, Submit: Submit the rectified return. Important Points: You can only rectify certain types of errors (mathematical errors, missing claims, etc.), You cannot change the ITR form type through rectification, You cannot add new sources of income that weren't originally reported, Rectification can be done multiple times until the assessment is completed, The department may also initiate rectification based on their review. For major errors or omissions, you may need to file a revised return instead."
+            }
+        ];
+
+        // DOM elements
+        const chatMessages = document.getElementById('chat-messages');
+        const userInput = document.getElementById('user-input');
+        const sendButton = document.getElementById('send-button');
+
+        // Function to find the best matching FAQ
+        function findBestMatch(userQuestion) {
+            let bestMatch = null;
+            let highestSimilarity = 0;
+            
+            // Simple string similarity using includes for this demo
+            // In a real implementation, you might use a more sophisticated algorithm
+            for (const faq of faqData) {
+                // Check for exact match first
+                if (faq.question.toLowerCase() === userQuestion.toLowerCase()) {
+                    return faq;
+                }
+                
+                // Check if question is contained in FAQ or vice versa
+                if (faq.question.toLowerCase().includes(userQuestion.toLowerCase()) || 
+                    userQuestion.toLowerCase().includes(faq.question.toLowerCase())) {
+                    // Prefer longer matches
+                    const similarity = Math.max(
+                        faq.question.toLowerCase().includes(userQuestion.toLowerCase()) ? userQuestion.length / faq.question.length : 0,
+                        userQuestion.toLowerCase().includes(faq.question.toLowerCase()) ? faq.question.length / userQuestion.length : 0
+                    );
+                    
+                    if (similarity > highestSimilarity) {
+                        highestSimilarity = similarity;
+                        bestMatch = faq;
+                    }
+                }
+            }
+            
+            // Only return a match if similarity is above a threshold
+            if (highestSimilarity > 0.5) {
+                return bestMatch;
+            }
+            
+            return null;
+        }
+
+        // Function to add a message to the chat
+        function addMessage(text, isUser = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message');
+            messageDiv.classList.add(isUser ? 'user-message' : 'bot-message');
+            messageDiv.textContent = text;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Function to handle user input
+        function handleUserInput() {
+            const question = userInput.value.trim();
+            if (!question) return;
+            
+            // Add user message
+            addMessage(question, true);
+            userInput.value = '';
+            
+            // Find and respond with answer
+            setTimeout(() => {
+                const match = findBestMatch(question);
+                if (match) {
+                    addMessage(match.answer);
+                } else {
+                    addMessage("I'm sorry, I don't have information on that specific question. Please try rephrasing or ask another question.");
+                }
+            }, 500);
+        }
+
+        // Event listeners
+        sendButton.addEventListener('click', handleUserInput);
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                handleUserInput();
+            }
+        });
+
+        // Add event listeners to FAQ items
+        document.querySelectorAll('.faq-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const question = item.getAttribute('data-question');
+                userInput.value = question;
+                handleUserInput();
+            });
+        });
+    </script>
+</body>
+</html>

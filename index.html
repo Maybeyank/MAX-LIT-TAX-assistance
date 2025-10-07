@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intelligent Tax Assistant - Full Application</title>
+    <style>
+        /* Global Styles */
+        :root {
+            --primary-color: #007bff; /* Blue for action */
+            --secondary-color: #28a745; /* Green for success/savings */
+            --warning-color: #dc3545; /* Red for higher tax/warnings */
+            --alert-bg: #fff3cd; /* Yellow for savings alert */
+            --alert-text: #856404;
+            --bg-color: #f8f9fa; /* Light background */
+            --card-bg: #ffffff;
+            --text-color: #343a40;
+        }
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+        .app-container {
+            display: flex;
+            max-width: 1200px;
+            margin: 40px auto;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            background-color: var(--card-bg);
+        }
+        .main-content {
+            flex: 2;
+            padding: 40px;
+        }
+        .sidebar {
+            flex: 1;
+            padding: 40px;
+            background-color: #e9ecef;
+            color: var(--text-color);
+        }
+        h1, h2, h3 {
+            color: var(--text-color);
+            margin-top: 0;
+        }
+        /* Progress Bar (Task Orientation) */
+        .progress-bar {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            list-style: none;
+            padding: 0;
+        }
+        .progress-bar li {
+            position: relative;
+            width: 25%;
+            text-align: center;
+            color: #6c757d;
+            transition: color 0.3s;
+        }
+        .progress-bar li::before {
+            content: '';
+            display: block;
+            width: 12px;
+            height: 12px;
+            background: #6c757d;
+            border-radius: 50%;
+            margin: 0 auto 10px;
+            z-index: 10;
+            transition: background 0.3s;
+        }
+        .progress-bar li:first-child::after,
+        .progress-bar li:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            top: 6px;
+            left: calc(50% + 6px);
+            width: calc(100% - 12px);
+            height: 2px;
+            background: #e9ecef;
+            z-index: 5;
+            transition: background 0.3s;
+        }
+        .progress-bar li.active {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+        .progress-bar li.active::before {
+            background: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.3);
+        }
+        .progress-bar li.completed {
+            color: var(--secondary-color);
+        }
+        .progress-bar li.completed::before {
+            background: var(--secondary-color);
+        }
+        .progress-bar li.completed::after {
+            background: var(--secondary-color);
+        }
+        /* Input & Form Styles */
+        .input-group {
+            margin-bottom: 25px;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        .input-group input[type="number"] {
+            width: calc(100% - 20px);
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        .input-group input[type="number"]:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+        .help-icon {
+            color: var(--primary-color);
+            cursor: pointer;
+            margin-left: 5px;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
+        .help-icon:hover {
+            opacity: 1;
+        }
+        .cta-button {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 600;
+            transition: background-color 0.3s, transform 0.1s;
+            box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+            margin-right: 15px;
+        }
+        .cta-button:hover {
+            background-color: #0056b3;
+            transform: translateY(-1px);
+        }
+        .back-button {
+            background-color: #6c757d;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+        .back-button:hover {
+             background-color: #5a6268;
+        }
+        /* Sidebar Styles (Live Calculation & Regime Comparison) */
+        .tax-summary h3 {
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .tax-summary p {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            font-size: 16px;
+        }
+        .regime-box {
+            background-color: var(--card-bg);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border-left: 5px solid #6c757d;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            transition: border-left 0.5s;
+        }
+        .regime-box.best-new {
+            border-left: 5px solid var(--secondary-color);
+        }
+        .regime-box.best-old {
+            border-left: 5px solid var(--warning-color);
+        }
+        .regime-box h4 {
+            color: var(--text-color);
+            margin-top: 0;
+            font-size: 18px;
+            font-weight: 700;
+        }
+        .savings-alert {
+            font-weight: 700;
+        }
+        .text-green {
+            color: var(--secondary-color);
+        }
+        .text-red {
+            color: var(--warning-color);
+        }
+        .alert-box {
+            background-color: var(--alert-bg);
+            color: var(--alert-text);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #ffeeba;
+            margin-top: 20px;
+            font-size: 15px;
+            font-weight: 500;
+        }
+        .alert-box.success {
+            background-color: #d4edda;
+            color: #155724;
+            border-color: #c3e6cb;
+        }
+        .hidden-step {
+            display: none;
+        }
+        /* Responsive Design */
+        @media (max-width: 900px) {
+            .app-container {
+                flex-direction: column;
+                margin: 20px;
+            }
+            .main-content, .sidebar {
+                padding: 20px;
+                flex: none;
+            }
+            .sidebar {
+                border-top: 1px solid #dee2e6;
+                order: -1;
+            }
+            .progress-bar li {
+                width: 33%;
+                font-size: 12px;
+            }
+        }
+    </style>
+    <!-- Firebase Imports for Persistence -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        
+        // Use global variables provided by the Canvas environment
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        
+        let db, auth;
+        window.userId = null;
+        window.currentStep = 1; // Tracks current step in SPA
+        window.appState = {
+            // Step 1 Data (Income)
+            grossSalary: 0, 
+            otherIncome: 0, 
+            hraClaimed: 0,
+            
+            // Step 2 Data (Deductions)
+            sec80C: 0,
+            sec80D: 0,
+            nps80CCD1B: 0,
+            homeLoanInterest: 0, 
+        }; 
+
+        // Firebase Initialization and Authentication
+        async function initFirebase() {
+            try {
+                if (Object.keys(firebaseConfig).length === 0) {
+                    console.error("Firebase config is missing. Using mock data.");
+                    return;
+                }
+                setLogLevel('debug');
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+                window.userId = auth.currentUser?.uid || crypto.randomUUID();
+                
+                await loadData();
+            } catch (error) {
+                console.error("Firebase initialization failed:", error);
+                showStep(window.currentStep); // Show step even if Firebase fails
+                updateTaxSummary(); 
+            }
+        }
+
+        // Save data to Firestore (Called on every input change or navigation)
+        window.saveData = async function() {
+            if (!db || !window.userId) return;
+            const docRef = doc(db, "artifacts", appId, "users", window.userId, "tax_data", "current_itr_data");
+            try {
+                await setDoc(docRef, window.appState, { merge: true });
+            } catch (error) {
+                console.error("Error saving data:", error);
+            }
+        };
+
+        // Load data from Firestore (Called on page load)
+        async function loadData() {
+            if (!db || !window.userId) {
+                showStep(window.currentStep);
+                updateTaxSummary();
+                return;
+            }
+            const docRef = doc(db, "artifacts", appId, "users", window.userId, "tax_data", "current_itr_data");
+            try {
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    window.appState = {...window.appState, ...docSnap.data()};
+                    
+                    // Set ALL inputs on the page with loaded values
+                    document.getElementById('salary').value = window.appState.grossSalary;
+                    document.getElementById('interest-income').value = window.appState.otherIncome;
+                    document.getElementById('hra-claimed').value = window.appState.hraClaimed;
+                    
+                    document.getElementById('home-loan-interest').value = window.appState.homeLoanInterest;
+                    document.getElementById('sec80c-claimed').value = window.appState.sec80C;
+                    document.getElementById('nps-claimed').value = window.appState.nps80CCD1B;
+                    document.getElementById('sec80d-claimed').value = window.appState.sec80D;
+                } 
+                showStep(window.currentStep);
+                updateTaxSummary(); // Recalculate with loaded/default data
+            } catch (error) {
+                console.error("Error loading data:", error);
+                showStep(window.currentStep);
+                updateTaxSummary();
+            }
+        }
+        
+        // Start Firebase on load
+        document.addEventListener('DOMContentLoaded', initFirebase);
+    </script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- MAIN CONTENT AREA: User Input -->
+        <div class="main-content">
+            
+            <h2>Intelligent Income Tax Assistant</h2>
+            
+            <!-- Progress Bar (Task Orientation) -->
+            <ul class="progress-bar" id="progress-bar">
+                <li id="step-1-li" class="active">1. Income & Comparison</li>
+                <li id="step-2-li">2. Deductions & Savings</li>
+                <li id="step-3-li">3. Review & File</li>
+            </ul>
+
+            <!-- STEP 1: INCOME DETAILS -->
+            <div id="step-1" data-step="1" class="step-content">
+                <h3 style="margin-bottom: 20px;">Step 1: Enter Your Income Details</h3>
+
+                <div class="input-group">
+                    <label for="salary">Gross Salary (Before Deductions)</label>
+                    <input type="number" id="salary" name="salary" placeholder="e.g., 10,00,000" min="0">
+                    <span class="help-icon" title="This is the total salary paid by your employer (usually mentioned in Section B of your Form-16)">?</span>
+                </div>
+
+                <div class="input-group">
+                    <label for="interest-income">Income from Other Sources (Interest, Dividends, etc.)</label>
+                    <input type="number" id="interest-income" name="interest-income" placeholder="e.g., 25,000" value="0" min="0">
+                    <span class="help-icon" title="Enter income from bank interest, dividends, or any other source, excluding salary.">?</span>
+                </div>
+
+                <div class="input-group">
+                    <label for="hra-claimed">HRA Exempted (If you live in a rented house)</label>
+                    <input type="number" id="hra-claimed" name="hra-claimed" placeholder="e.g., 1,20,000" value="0" min="0">
+                    <span class="help-icon" title="Enter the House Rent Allowance (HRA) amount that your employer has exempted. This is generally only claimed under the Old Regime.">?</span>
+                </div>
+
+                <button class="cta-button" onclick="nextStep();">
+                    Next: Check Deductions (Step 2)
+                </button>
+            </div>
+
+            <!-- STEP 2: DEDUCTION DETAILS -->
+            <div id="step-2" data-step="2" class="step-content hidden-step">
+                <h3 style="margin-bottom: 20px;">Step 2: Enter Your Deductions & Investments</h3>
+
+                <!-- Home Loan Interest (Section 24b) -->
+                <div class="input-group">
+                    <label for="home-loan-interest">Home Loan Interest Paid (Self-Occupied Property)</label>
+                    <input type="number" id="home-loan-interest" name="home-loan-interest" placeholder="Max ₹2,00,000" value="0" min="0">
+                    <span class="help-icon" title="Interest paid on a self-occupied property loan, deductible up to ₹2,00,000 under the Old Regime only.">?</span>
+                </div>
+
+                <hr style="border-top: 1px dashed #ddd; margin: 30px 0;">
+                
+                <!-- Section 80C, 80CCC, 80CCD(1) - Combined Limit ₹1,50,000 -->
+                <div class="input-group">
+                    <label for="sec80c-claimed">Section 80C Claim (PPF, EPF, LIC, Home Loan Principal, Tuition Fees, etc.)</label>
+                    <input type="number" id="sec80c-claimed" name="sec80c-claimed" placeholder="e.g., 1,50,000" value="0" min="0" max="150000">
+                    <span class="help-icon" title="The total amount claimed under 80C, 80CCC, and 80CCD(1) is limited to ₹1,50,000. Available under Old Regime only.">?</span>
+                </div>
+                
+                <div id="savings-suggestion" class="alert-box">
+                    <!-- Dynamic savings alert will be inserted here (Goal 4) -->
+                    Maximizing your 80C investment can drastically reduce your tax under the Old Regime.
+                </div>
+
+                <!-- Section 80CCD(1B) - NPS Additional Deduction ₹50,000 -->
+                <div class="input-group" style="margin-top: 30px;">
+                    <label for="nps-claimed">Section 80CCD(1B) - Additional NPS Contribution (Self)</label>
+                    <input type="number" id="nps-claimed" name="nps-claimed" placeholder="Max ₹50,000" value="0" min="0" max="50000">
+                    <span class="help-icon" title="This is an exclusive deduction up to ₹50,000 for your own contribution to NPS. Available under Old Regime only.">?</span>
+                </div>
+
+                <!-- Section 80D - Health Insurance & Medical Checkups -->
+                <div class="input-group">
+                    <label for="sec80d-claimed">Section 80D - Health Insurance Premium & Checkups</label>
+                    <input type="number" id="sec80d-claimed" name="sec80d-claimed" placeholder="e.g., 30,000" value="0" min="0">
+                    <span class="help-icon" title="Claim up to ₹25,000 for self/family and additional amounts for parents. Available under Old Regime only.">?</span>
+                </div>
+
+                <div style="margin-top: 30px;">
+                    <button class="back-button" onclick="prevStep();">
+                        Back to Income (Step 1)
+                    </button>
+                    <button class="cta-button" onclick="nextStep();">
+                        Review & Final Comparison (Step 3)
+                    </button>
+                </div>
+            </div>
+
+             <!-- STEP 3: REVIEW AND FILE (Placeholder) -->
+             <div id="step-3" data-step="3" class="step-content hidden-step">
+                <h3 style="margin-bottom: 20px;">Step 3: Review and Finalize</h3>
+                <div class="alert-box success">
+                    This is the final review page. Here you would typically see a complete, side-by-side comparison of the final tax calculation for both regimes, a summary of all deductions claimed, and the option to download or submit the final return.
+                </div>
+                <div style="margin-top: 30px;">
+                    <button class="back-button" onclick="prevStep();">
+                        Back to Deductions (Step 2)
+                    </button>
+                    <button class="cta-button" onclick="alert('Submission logic would go here.');">
+                        File ITR Now (Placeholder)
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- SIDEBAR: Live Calculation & Regime Comparison (Goals 1, 5, 6) -->
+        <div class="sidebar">
+            <div class="tax-summary">
+                <h3>Live Tax Summary</h3>
+                <p>Gross Total Income: <span id="gross-total-income">₹ 0</span></p>
+                <p>Total Allowed Deductions: <span id="total-deductions-claimed">₹ 0</span></p>
+                <hr style="border-top: 1px dashed #adb5bd; margin: 10px 0;">
+
+                <p>Taxable Income (New Regime): <span id="taxable-new">₹ 0</span></p>
+                <p>Taxable Income (Old Regime): <span id="taxable-old">₹ 0</span></p>
+
+                <!-- Comparison Box for New Regime (Default Best) -->
+                <div id="new-regime-box" class="regime-box">
+                    <h4>New Tax Regime</h4>
+                    <p>Estimated Tax Payable: <span id="tax-due-new" class="savings-alert text-green">₹ 0</span></p>
+                </div>
+                
+                <!-- Comparison Box for Old Regime -->
+                <div id="old-regime-box" class="regime-box">
+                    <h4>Old Tax Regime</h4>
+                    <p>Estimated Tax Payable: <span id="tax-due-old" class="savings-alert text-red">₹ 0</span></p>
+                    <p class="savings-alert">Tax Difference: <span id="savings">₹ 0</span></p>
+                    <small>Deductions applied: 80C, 80D, HRA, 24b.</small>
+                </div>
+
+                <hr style="border-top: 1px dashed #adb5bd; margin: 20px 0;">
+                <p style="font-size: 14px; color: #6c757d;">
+                    <span class="help-icon" title="Transparency in calculations. All final calculations will be detailed on the Review screen.">?</span>
+                    Your tax liability is based on the latest FY rules.
+                </p>
+                <p style="font-size: 14px; color: #6c757d;">
+                    User ID: <span id="user-id-display">Loading...</span>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- JAVASCRIPT LOGIC FOR REAL-TIME TAX CALCULATION (Goal 1 & 5) ---
+
+        // Constants shared across all steps
+        const CESS_RATE = 0.04; 
+        const STANDARD_DEDUCTION_OLD = 50000;
+        const STANDARD_DEDUCTION_NEW = 75000;
+        const LIMIT_80CCE = 150000;
+        const LIMIT_24B = 200000; 
+        
+        // Helper function for currency formatting
+        const formatCurrency = (amount) => `₹ ${amount.toLocaleString('en-IN')}`;
+
+
+        /**
+         * Calculates tax and cess under the New Tax Regime (Default).
+         */
+        function calculateNewRegimeTax(taxableIncome) {
+            const slabs = [
+                { limit: 300000, rate: 0.00 },
+                { limit: 700000, rate: 0.05 },
+                { limit: 1000000, rate: 0.10 },
+                { limit: 1200000, rate: 0.15 },
+                { limit: 1500000, rate: 0.20 },
+            ];
+
+            let tax = 0;
+            let incomeRemaining = taxableIncome;
+            let previousLimit = 0;
+            
+            for (const slab of slabs) {
+                if (incomeRemaining <= previousLimit) break;
+                
+                const taxableInSlab = Math.min(slab.limit, incomeRemaining) - previousLimit;
+                tax += taxableInSlab * slab.rate;
+                previousLimit = slab.limit;
+            }
+            
+            if (incomeRemaining > 1500000) {
+                tax += (incomeRemaining - 1500000) * 0.30;
+            }
+
+            // Apply Rebate u/s 87A (Full tax waiver if Net Taxable Income is up to ₹7,00,000)
+            let rebate = 0;
+            if (taxableIncome <= 700000) {
+                rebate = tax;
+            }
+            
+            tax = Math.max(0, tax - rebate);
+            const cess = tax * CESS_RATE;
+            const totalLiability = tax + cess;
+
+            return { tax: Math.round(tax), totalLiability: Math.round(totalLiability) };
+        }
+
+        /**
+         * Calculates tax and cess under the Old Tax Regime.
+         */
+        function calculateOldRegimeTax(netTaxableIncome) {
+            const slabs = [
+                { limit: 250000, rate: 0.00 },
+                { limit: 500000, rate: 0.05 },
+                { limit: 1000000, rate: 0.20 },
+            ];
+
+            let tax = 0;
+            let incomeRemaining = netTaxableIncome;
+            let previousLimit = 0;
+
+            for (const slab of slabs) {
+                if (incomeRemaining <= previousLimit) break;
+                const taxableInSlab = Math.min(slab.limit, incomeRemaining) - previousLimit;
+                tax += taxableInSlab * slab.rate;
+                previousLimit = slab.limit;
+            }
+
+            if (incomeRemaining > 1000000) {
+                tax += (incomeRemaining - 1000000) * 0.30;
+            }
+
+            // Apply Rebate u/s 87A (Full tax waiver if Net Taxable Income is up to ₹5,00,000)
+            let rebate = 0;
+            if (netTaxableIncome <= 500000) {
+                rebate = Math.min(tax, 12500);
+            }
+            
+            tax = Math.max(0, tax - rebate);
+            const cess = tax * CESS_RATE;
+            const totalLiability = tax + cess;
+
+            return { tax: Math.round(tax), totalLiability: Math.round(totalLiability) };
+        }
+
+        /**
+         * Main function to read all inputs, calculate taxes, and update the UI.
+         */
+        window.updateTaxSummary = function() {
+            // 1. Get ALL Inputs and update state
+            const grossSalary = parseFloat(document.getElementById('salary').value) || 0;
+            const otherIncome = parseFloat(document.getElementById('interest-income').value) || 0;
+            const hraClaimed = parseFloat(document.getElementById('hra-claimed').value) || 0;
+            
+            const sec80C = parseFloat(document.getElementById('sec80c-claimed').value) || 0;
+            const nps80CCD1B = parseFloat(document.getElementById('nps-claimed').value) || 0;
+            const sec80D = parseFloat(document.getElementById('sec80d-claimed').value) || 0;
+            const homeLoanInterest = parseFloat(document.getElementById('home-loan-interest').value) || 0;
+
+            // Apply limits and update appState for persistence
+            window.appState.grossSalary = grossSalary;
+            window.appState.otherIncome = otherIncome;
+            window.appState.hraClaimed = hraClaimed;
+
+            window.appState.sec80C = Math.min(sec80C, LIMIT_80CCE); 
+            window.appState.sec80D = sec80D; // Deduction limits handled by user/assumed valid for now
+            window.appState.nps80CCD1B = Math.min(nps80CCD1B, 50000);
+            window.appState.homeLoanInterest = Math.min(homeLoanInterest, LIMIT_24B);
+
+            window.saveData();
+
+            // 2. Calculate Deductions
+            const total80CCE = window.appState.sec80C; 
+            const loss24b = window.appState.homeLoanInterest; 
+            const totalChapterVIA = total80CCE + window.appState.sec80D + window.appState.nps80CCD1B; 
+            const grossTotalIncome = grossSalary + otherIncome;
+            
+            // Total sum of deductions claimed for UI display
+            const totalDeductionsDisplay = STANDARD_DEDUCTION_OLD + hraClaimed + loss24b + totalChapterVIA;
+
+            // 3. Calculate Taxable Income
+            
+            // A. New Regime: GTI - New Standard Deduction 
+            const taxableIncomeNew = Math.max(0, grossTotalIncome - STANDARD_DEDUCTION_NEW); 
+
+            // B. Old Regime: GTI - Old Standard Deduction - HRA - Loss 24b - Total Chapter VI-A
+            const taxableIncomeOld = Math.max(0, grossTotalIncome - STANDARD_DEDUCTION_OLD - hraClaimed - loss24b - totalChapterVIA);
+
+
+            // 4. Calculate Tax Liability
+            const taxNew = calculateNewRegimeTax(taxableIncomeNew);
+            const taxOld = calculateOldRegimeTax(taxableIncomeOld); 
+
+            // 5. Update UI Elements
+            document.getElementById('gross-total-income').textContent = formatCurrency(grossTotalIncome);
+            document.getElementById('total-deductions-claimed').textContent = formatCurrency(totalDeductionsDisplay);
+            document.getElementById('taxable-new').textContent = formatCurrency(taxableIncomeNew);
+            document.getElementById('taxable-old').textContent = formatCurrency(taxableIncomeOld);
+            document.getElementById('tax-due-new').textContent = formatCurrency(taxNew.totalLiability);
+            document.getElementById('tax-due-old').textContent = formatCurrency(taxOld.totalLiability);
+            
+            // 6. Comparison Logic
+            const savings = Math.abs(taxNew.totalLiability - taxOld.totalLiability);
+            const newBox = document.getElementById('new-regime-box');
+            const oldBox = document.getElementById('old-regime-box');
+            const newDueSpan = document.getElementById('tax-due-new');
+            const oldDueSpan = document.getElementById('tax-due-old');
+
+            // Reset classes
+            newBox.classList.remove('best-new', 'best-old');
+            oldBox.classList.remove('best-new', 'best-old');
+            newDueSpan.classList.remove('text-green', 'text-red');
+            oldDueSpan.classList.remove('text-green', 'text-red');
+            
+            if (taxNew.totalLiability < taxOld.totalLiability) {
+                newBox.classList.add('best-new');
+                newBox.querySelector('h4').textContent = "New Tax Regime (Recommended)";
+                oldBox.querySelector('h4').textContent = "Old Tax Regime";
+                newDueSpan.classList.add('text-green');
+                oldDueSpan.classList.add('text-red');
+            } else {
+                oldBox.classList.add('best-old'); 
+                oldBox.querySelector('h4').textContent = "Old Tax Regime (Recommended)";
+                newBox.querySelector('h4').textContent = "New Tax Regime";
+                newDueSpan.classList.add('text-red');
+                oldDueSpan.classList.add('text-green');
+            }
+            
+            oldBox.querySelector('p:last-of-type').innerHTML = `Tax Difference: <span id="savings">${formatCurrency(savings)}</span>`;
+
+            // 7. Savings Suggestion Logic (Goal 4)
+            const remaining80C = LIMIT_80CCE - total80CCE;
+            const suggestionBox = document.getElementById('savings-suggestion');
+            
+            if (suggestionBox) { // Check if element exists (only on Step 2)
+                if (remaining80C > 0) {
+                    suggestionBox.classList.remove('success');
+                    suggestionBox.innerHTML = 
+                        `⚠️ **Missed Savings Alert:** You can still claim **${formatCurrency(remaining80C)}** more under Section 80C! This is crucial for making the Old Regime beneficial.`;
+                } else {
+                    suggestionBox.classList.add('success');
+                    suggestionBox.innerHTML = 
+                        `✅ **80C Limit Maximized!** You have claimed the full ${formatCurrency(LIMIT_80CCE)} deduction.`;
+                }
+            }
+
+
+            // Display User ID (Goal: Multi-user app requirement)
+            document.getElementById('user-id-display').textContent = window.userId || 'Not Authenticated';
+        };
+
+        // --- SPA Navigation Logic ---
+        
+        function updateProgressBar(current) {
+            const steps = [1, 2, 3];
+            steps.forEach(stepNum => {
+                const li = document.getElementById(`step-${stepNum}-li`);
+                li.classList.remove('active', 'completed');
+                if (stepNum < current) {
+                    li.classList.add('completed');
+                } else if (stepNum === current) {
+                    li.classList.add('active');
+                }
+            });
+        }
+
+        window.showStep = function(stepNum) {
+            const contents = document.querySelectorAll('.step-content');
+            contents.forEach(content => {
+                if (parseInt(content.dataset.step) === stepNum) {
+                    content.classList.remove('hidden-step');
+                } else {
+                    content.classList.add('hidden-step');
+                }
+            });
+            window.currentStep = stepNum;
+            updateProgressBar(stepNum);
+        };
+
+        window.nextStep = function() {
+            if (window.currentStep < 3) {
+                showStep(window.currentStep + 1);
+            }
+        };
+
+        window.prevStep = function() {
+            if (window.currentStep > 1) {
+                showStep(window.currentStep - 1);
+            }
+        };
+
+        // 8. Event Listeners: Attach the update function to ALL input changes
+        document.addEventListener('DOMContentLoaded', () => {
+            const inputs = document.querySelectorAll('input[type="number"]');
+            
+            inputs.forEach(input => {
+                input.addEventListener('input', window.updateTaxSummary);
+            });
+        });
+    </script>
+</body>
+</html>
